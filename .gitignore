@@ -1,0 +1,42 @@
+# 데이터 (캐글 API로 받으므로 커밋하지 않음)
+data/*
+*.csv
+*.tsv
+*.parquet
+*.zip
+*.7z
+
+# 모델 / 산출물
+output/
+models/
+*.pkl
+*.joblib
+*.pt
+*.pth
+*.bin
+
+# 제출 파일은 기록용으로 남기되 용량 큰 건 제외
+competitions/*/submissions/*.csv
+
+# 노트북
+.ipynb_checkpoints/
+*.nbconvert.ipynb
+
+# 파이썬
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.python-version
+
+# 환경 / 비밀
+.env
+kaggle.json
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# 빈 디렉토리 유지
+!**/.gitkeep
