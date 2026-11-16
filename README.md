@@ -12,6 +12,8 @@
 
 ```
 common/                 # 대회 공통 유틸 (CV, 메트릭, 시드 고정)
+scripts/
+  new_competition.sh    # 새 대회 디렉토리 생성 + 데이터 다운로드
 competitions/
   _template/            # 새 대회 시작할 때 복사해서 쓰는 템플릿
   <대회명>/
@@ -35,14 +37,21 @@ nbstripout --install
 #    kaggle.com > Account > Create New API Token -> kaggle.json 다운로드
 mkdir -p ~/.kaggle && mv ~/Downloads/kaggle.json ~/.kaggle/ && chmod 600 ~/.kaggle/kaggle.json
 
-# 4. 새 대회 시작
-cp -r competitions/_template competitions/<대회명>
-cd competitions/<대회명>
-kaggle competitions download -c <대회명> -p data/ && unzip -o 'data/*.zip' -d data/
+# 4. 새 대회 시작 (템플릿 복사 + 데이터 다운로드)
+./scripts/new_competition.sh <kaggle-slug>
 ```
+
+슬러그는 대회 URL 뒤쪽. `kaggle.com/competitions/playground-series-s5e11` -> `playground-series-s5e11`
 
 ## 제출
 
 ```bash
 kaggle competitions submit -c <대회명> -f submissions/<파일>.csv -m "설명"
 ```
+
+## 참고 문서
+
+캐글 사용법 노트는 옵시디언 볼트에 있음 -> `~/Desktop/git/kaggle-competitions/docs/`
+
+- `Kaggle-제출-가이드.md` — 대회 유형, Code competition 제약, kernel-metadata 전체 설명
+- `Titanic-시작하기.md` — 등록부터 첫 제출까지 (실습 가이드)
