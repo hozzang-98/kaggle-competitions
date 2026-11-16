@@ -64,7 +64,7 @@
   <div class="sub">
     Kaggle 2012년 대회 · 평가지표 <strong>LogLoss</strong> (낮을수록 좋음) ·
     피처 1,776개 전부 익명화<br>
-    작업 기간 2026-11-10 ~ 11-16 · 최종 <strong>Public 0.46180 / Private 0.42650</strong>
+    작업 기간 2026-11-10 ~ 11-16 · 5개 제출 · 최선 <strong>Public 0.42016 / Private 0.37939</strong> (49위 / 702)
   </div>
 </header>
 
@@ -81,7 +81,7 @@
   <div class="step"><span class="k">3</span><span>EDA — polars 기반 <code>eda.ipynb</code>, 1,776개를 집계 중심으로</span></div>
   <div class="step"><span class="k">4</span><span><strong>베이스라인 직접 작성</strong> — RandomForest / XGBoost, 5-fold OOF</span></div>
   <div class="step"><span class="k">5</span><span><strong>외부 marimo 노트북 3개</strong> 실행 — LGBM, PyCaret 모델 비교, PyCaret 옵션 비교</span></div>
-  <div class="step"><span class="k">6</span><span>exp01(RF) 제출 → Public LB 확인. <strong>2012년 대회인데 Late Submission이 받아진다</strong></span></div>
+  <div class="step"><span class="k">6</span><span>5개 전부 제출 → <strong>CV 1위였던 RF가 LB 꼴찌</strong>, CV 꼴찌 XGB가 LB 1위</span></div>
 </div>
 
 <h2><span class="n">02</span>데이터와 제출 포맷</h2>
@@ -253,12 +253,12 @@ XGB는 fold1 0.428 ~ fold2 0.519로 흔들린다. XGB는 튜닝하지 않은 기
 <h2><span class="n">06</span>전체 결과와 제출</h2>
 
 <table>
-<tr><th>출처</th><th>모델</th><th>검증 체계</th><th class="num">검증 점수</th><th class="num">Public LB</th><th class="num">Private LB</th></tr>
-<tr class="hl"><td>exp01</td><td>RandomForest</td><td>5-fold OOF</td><td class="num">0.46423</td><td class="num">0.46180</td><td class="num">0.42650</td></tr>
-<tr><td>exp02</td><td>XGBoost</td><td>5-fold OOF</td><td class="num">0.47682</td><td class="num">—</td><td class="num">—</td></tr>
-<tr><td>nb01</td><td>LightGBM 고정 파라미터</td><td>holdout 20% 1회</td><td class="num">0.43591</td><td class="num">—</td><td class="num">—</td></tr>
-<tr><td>nb02</td><td>CatBoost</td><td>PyCaret 3-fold</td><td class="num">0.47090</td><td class="num">—</td><td class="num">—</td></tr>
-<tr><td>nb03</td><td>soft_blend</td><td>PyCaret 3-fold</td><td class="num">0.46130</td><td class="num">—</td><td class="num">—</td></tr>
+<tr><th>출처</th><th>모델</th><th>검증 체계</th><th class="num">검증 점수</th><th class="num">Public LB</th><th class="num">순위/702</th><th class="num">Private LB</th></tr>
+<tr><td>exp01</td><td>RandomForest</td><td>5-fold OOF</td><td class="num">0.46423</td><td class="num">0.46180</td><td class="num">371위</td><td class="num">0.42650</td></tr>
+<tr class="hl"><td>exp02</td><td>XGBoost</td><td>5-fold OOF</td><td class="num">0.47682</td><td class="num">0.42016</td><td class="num">49위</td><td class="num">0.37939</td></tr>
+<tr><td>nb01</td><td>LightGBM 고정 파라미터</td><td>holdout 20% 1회</td><td class="num">0.43591</td><td class="num">0.42492</td><td class="num">77위</td><td class="num">0.39154</td></tr>
+<tr><td>nb02</td><td>CatBoost</td><td>PyCaret 3-fold</td><td class="num">0.47090</td><td class="num">0.42922</td><td class="num">99위</td><td class="num">0.39405</td></tr>
+<tr><td>nb03</td><td>soft_blend</td><td>PyCaret 3-fold</td><td class="num">0.46130</td><td class="num">0.42327</td><td class="num">64위</td><td class="num">0.38639</td></tr>
 </table>
 
 <div class="box warn">
@@ -269,26 +269,41 @@ XGB는 fold1 0.428 ~ fold2 0.519로 흔들린다. XGB는 튜닝하지 않은 기
   같은 자로 재려면 동일한 5-fold OOF에 태워야 한다.
 </div>
 
-<h3>제출 결과</h3>
-<pre><code>kaggle competitions submit -c bioresponse -f submission_rf.csv -m "exp01 rf cv0.4642"
-# Successfully submitted to Predicting a Biological Response</code></pre>
+<h3>가장 중요한 결과 — CV 1위가 LB 꼴찌였다</h3>
+
+<p>
+5개를 전부 제출하고 나서야 드러났다.
+<strong>CV에서 가장 좋았던 RF가 LB에서는 가장 나빴고, CV 꼴찌였던 XGB가 LB 1위였다.</strong>
+</p>
 
 <table>
-<tr><th>항목</th><th class="num">값</th></tr>
-<tr><td>CV LogLoss (5-fold OOF)</td><td class="num">0.46423</td></tr>
-<tr class="hl"><td>Public LB</td><td class="num">0.46180</td></tr>
-<tr class="hl"><td>Private LB</td><td class="num">0.42650</td></tr>
-<tr><td><strong>CV − Public 갭</strong></td><td class="num"><strong>−0.0024</strong></td></tr>
-<tr><td>순위</td><td class="num">371 / 702 (상위 52.8%)</td></tr>
+<tr><th>모델</th><th class="num">CV</th><th class="num">Public LB</th><th class="num">갭</th></tr>
+<tr><td>RandomForest</td><td class="num">0.46423 <span class="dim">(1위)</span></td><td class="num">0.46180</td><td class="num">−0.0024</td></tr>
+<tr class="hl"><td>XGBoost</td><td class="num">0.47682 <span class="dim">(꼴찌)</span></td><td class="num">0.42016</td><td class="num"><strong>−0.0567</strong></td></tr>
 </table>
 
-<div class="box good">
-  <div class="t">가장 중요한 결과 — CV와 LB가 거의 일치한다</div>
-  갭이 <strong>−0.0024</strong>로 사실상 동일하다. Titanic 1회차에서는 −0.0476이었다.
-  train 3,751행 / test 2,501행으로 Titanic(891행)보다 크고,
-  EDA에서 train·test 분포 shift가 없음을 확인한 것과 맞아떨어진다.
-  <strong>이 대회는 CV를 믿고 움직여도 된다</strong> — LB를 하루에 몇 번씩 찔러볼 필요가 없다.
+<div class="box warn">
+  <div class="t">원인 — CV가 측정한 것과 제출한 것이 다르다</div>
+  <code>baseline.py</code>에서 CV 점수는 <strong>fold별 단일 모델</strong>의 OOF인데,
+  제출 예측은 <strong>5개 fold 모델의 평균</strong>이다(<code>test_pred += ... / N_FOLD</code>).
+  즉 제출본은 CV가 한 번도 측정한 적 없는 5-모델 앙상블이다.
+  <ul>
+    <li>RF는 이미 500트리 앙상블이라 5개를 더 평균해도 이득이 작다 (fold 편차 ±0.015)</li>
+    <li>XGB는 fold별로 0.428~0.519로 흔들렸고(±0.029),
+        <strong>분산이 큰 모델일수록 평균의 이득이 크다</strong></li>
+  </ul>
+  처음에 RF 한 점만 보고 "갭이 −0.0024니 CV를 믿어도 된다"고 판단했는데 틀렸다.
+  <strong>갭은 대회의 속성이 아니라 모델마다 다르다.</strong> 한 점으로 일반화하면 안 된다.
 </div>
+
+<pre><code>kaggle competitions submit -c bioresponse -f submission_xgb.csv -m "exp02 xgb cv0.4768"
+# Public 0.42016 / Private 0.37939 — 49위 / 702 (상위 7.0%)</code></pre>
+
+<p>
+Private LB 1위가 0.37355인데 exp02가 <strong>0.37939</strong>다.
+튜닝하지 않은 베이스라인치고 상위권에 근접했다.
+반대로 "CV가 가장 좋으니"라며 RF만 제출하고 끝냈다면 371위에 머물렀을 것이다.
+</p>
 
 <p class="dim">
 기준점 참고: Public LB 1위 0.39275 / Private(최종) LB 1위 0.37355 / Public LB 중앙값 0.45865.
@@ -354,9 +369,11 @@ pillow의 메타데이터 파일 하나가 깨져서 <strong>부스팅 모델 3�
 
 <h2><span class="n">09</span>다음에 할 것</h2>
 <ul>
-  <li>nb01 · nb03을 <strong>동일한 5-fold OOF</strong>에 태워 exp01과 공정 비교</li>
-  <li>soft_blend 제출해서 CV−LB 갭이 exp01과 같은 패턴인지 확인</li>
-  <li>상위권(0.39 이하)과의 격차 원인 분석 — 피처가 많아 정규화·차원축소 여지</li>
+  <li><strong>CV를 제출과 같은 형태로 측정</strong> — fold 평균 앙상블의 OOF를 따로 계산.
+      지금 구조는 단일 모델로 재고 앙상블로 제출해서 모델 선택이 틀어진다</li>
+  <li>XGB가 가장 좋았으니 거기서 하이퍼파라미터 튜닝 시작</li>
+  <li>nb01 · nb03을 동일한 5-fold OOF에 태워 공정 비교</li>
+  <li>상위권(Private 0.37355)과의 격차 — XGB가 0.37939까지 왔으니 튜닝 여지</li>
 </ul>
 
 <footer>
