@@ -11,18 +11,22 @@
 ## 구조
 
 ```
-common/                 # 대회 공통 유틸 (CV, 메트릭, 시드 고정)
+common/                 # 대회 공통 유틸 (CV, 메트릭, 시드 고정) — 쓰고 싶을 때만
 scripts/
-  new_competition.sh    # 새 대회 디렉토리 생성 + 데이터 다운로드
+  new_competition.sh    # 새 대회 디렉토리 생성 + 데이터 다운로드 + 제출 포맷 확인
 competitions/
   _template/            # 새 대회 시작할 때 복사해서 쓰는 템플릿
   <대회명>/
-    README.md           # 대회 개요 / 접근법 / 결과 회고
+    README.md           # 대회 개요 / 기준점 / 실험 로그 / 회고
     data/               # gitignore - 캐글 API로 다운로드
-    notebooks/          # EDA, 실험
-    src/                # 전처리 / 학습 / 추론 스크립트
+    eda.ipynb           # EDA
+    baseline.py         # 학습 + 제출 파일 생성
     submissions/        # 제출 이력
+    notebooks/          # (선택) 캐글 커널이나 외부 노트북을 둘 때만
 ```
+
+대회 하나는 파일 열 개 남짓이라 `src/` 같은 중간 디렉토리를 두지 않는다.
+Titanic·Bioresponse 두 대회 모두 실제로 그렇게 작업했다.
 
 ## 시작하기
 
