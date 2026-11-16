@@ -1,0 +1,7 @@
+Variant,CV_LogLoss,Holdout_LogLoss
+soft_blend,0.4613,0.4109395125034504
+selected_catboost,0.47,0.4226189351350519
+selected_rf,0.4737,0.42836729809019075
+calibrated_catboost,0.4751,0.43569531833375896
+baseline_lgbm,0.4851,0.4210105293990838
+selected_lgbm,0.4855,0.42262438479166153
