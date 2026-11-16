@@ -1,0 +1,16 @@
+train (3751, 1776) / test (2501, 1776) / 양성비율 0.5423
+  fold 1  LogLoss 0.43663  (1s)
+  fold 2  LogLoss 0.47183  (1s)
+  fold 3  LogLoss 0.47574  (2s)
+  fold 4  LogLoss 0.47615  (3s)
+  fold 5  LogLoss 0.46082  (3s)
+
+[rf] CV LogLoss (OOF 전체) : 0.46423
+[rf] fold 평균 0.46423 (±0.01487)
+기준점: all-0.5 = 0.69315 / train평균 = 0.68962 / 2012 LB 1위 = 0.37355
+
+포맷 검증 통과 → submission_rf.csv
+  2501행, 컬럼 ['MoleculeId', 'PredictedProbability']
+  예측 확률: min 0.0128 / 평균 0.5478 / max 0.9961
+  제출 메모용 → "exp01 rf cv0.4642"
+RF_EXIT=0

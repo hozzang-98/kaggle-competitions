@@ -15,8 +15,10 @@ models/
 *.pth
 *.bin
 
-# 제출 파일은 기록용으로 남기되 용량 큰 건 제외
-competitions/*/submissions/*.csv
+# 제출 파일은 기록으로 남긴다 (*.csv 전면 차단의 예외)
+!competitions/*/submission*.csv
+!competitions/*/submissions/*.csv
+!competitions/*/eval/*.csv
 
 # 노트북
 .ipynb_checkpoints/
@@ -26,6 +28,7 @@ competitions/*/submissions/*.csv
 __pycache__/
 *.py[cod]
 .venv/
+.venv-*/
 venv/
 .python-version
 
@@ -40,3 +43,10 @@ kaggle.json
 
 # 빈 디렉토리 유지
 !**/.gitkeep
+
+# 학습 부산물 / 실행 로그
+**/catboost_info/
+logs.log
+
+# 에디터 로컬 히스토리
+.history/

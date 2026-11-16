@@ -1,0 +1,33 @@
+[LightGBM] [Info] Number of positive: 1084, number of negative: 916
+[LightGBM] [Info] Auto-choosing row-wise multi-threading, the overhead of testing was 0.012765 seconds.
+You can set `force_row_wise=true` to remove the overhead.
+And if memory is not enough, you can set `force_col_wise=true`.
+[LightGBM] [Info] Total Bins 29515
+[LightGBM] [Info] Number of data points in the train set: 2000, number of used features: 1503
+[LightGBM] [Info] [binary:BoostFromScore]: pavg=0.542000 -> initscore=0.168397
+[LightGBM] [Info] Start training from score 0.168397
+[LightGBM] [Info] Number of positive: 1085, number of negative: 915
+[LightGBM] [Info] Auto-choosing row-wise multi-threading, the overhead of testing was 0.012011 seconds.
+You can set `force_row_wise=true` to remove the overhead.
+And if memory is not enough, you can set `force_col_wise=true`.
+[LightGBM] [Info] Total Bins 29277
+[LightGBM] [Info] Number of data points in the train set: 2000, number of used features: 1498
+[LightGBM] [Info] [binary:BoostFromScore]: pavg=0.542500 -> initscore=0.170411
+[LightGBM] [Info] Start training from score 0.170411
+[LightGBM] [Info] Number of positive: 1085, number of negative: 915
+[LightGBM] [Info] Auto-choosing row-wise multi-threading, the overhead of testing was 0.012286 seconds.
+You can set `force_row_wise=true` to remove the overhead.
+And if memory is not enough, you can set `force_col_wise=true`.
+[LightGBM] [Info] Total Bins 29899
+[LightGBM] [Info] Number of data points in the train set: 2000, number of used features: 1517
+[LightGBM] [Info] [binary:BoostFromScore]: pavg=0.542500 -> initscore=0.170411
+[LightGBM] [Info] Start training from score 0.170411
+[LightGBM] [Info] Number of positive: 1627, number of negative: 1373
+[LightGBM] [Info] Auto-choosing row-wise multi-threading, the overhead of testing was 0.017998 seconds.
+You can set `force_row_wise=true` to remove the overhead.
+And if memory is not enough, you can set `force_col_wise=true`.
+[LightGBM] [Info] Total Bins 32573
+[LightGBM] [Info] Number of data points in the train set: 3000, number of used features: 1596
+[LightGBM] [Info] [binary:BoostFromScore]: pavg=0.542333 -> initscore=0.169740
+[LightGBM] [Info] Start training from score 0.169740
+EXIT=0
