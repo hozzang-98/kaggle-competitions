@@ -28,41 +28,85 @@
 
 ## 실험 로그
 
-5개 전부 제출함.
+9개 제출함. **Private LB 기준** 정렬.
 
-| exp | 모델 | 검증 체계 | 검증 점수 | Public LB | 순위 | Private LB |
+| exp | 모델 | 제출 예측 생성 | 검증 점수 | Public LB | 순위 | Private LB |
 |---|---|---|---|---|---|---|
-| exp01 | RandomForest (500, sqrt, leaf2) | 5-fold OOF | 0.46423 | 0.46180 | 371위 (52.8%) | 0.42650 |
-| **exp02** | **XGBoost (500, lr0.05, depth6)** | 5-fold OOF | 0.47682 | **0.42016** | **49위 (7.0%)** | **0.37939** |
-| nb01 | LightGBM (고정 파라미터) | holdout 20% 1회 | 0.43591 | 0.42492 | 77위 (11.0%) | 0.39154 |
-| nb02 | CatBoost (PyCaret 7종 비교 1위) | PyCaret 3-fold | 0.47090 | 0.42922 | 99위 (14.1%) | 0.39405 |
-| nb03 | soft_blend (catboost+rf+lgbm) | PyCaret 3-fold | 0.46130 | 0.42327 | 64위 (9.1%) | 0.38639 |
+| **exp02** | **XGBoost** | **5-fold 평균** | CV 0.47682 | **0.42016** | **49위 (7.0%)** | **0.37939** |
+| exp02b | XGBoost | 전체 재학습 단일 | — | 0.43674 | 131위 | 0.38552 |
+| nb03 | soft_blend (PyCaret) | 전체 재학습 단일 | CV 0.46130 | 0.42327 | 64위 | 0.38639 |
+| nb01b | LightGBM | 5-fold 평균 | OOF 0.45632 | 0.42408 | 72위 | 0.38855 |
+| nb01 | LightGBM | 전체 재학습 단일 | holdout 0.43591 | 0.42492 | 77위 | 0.39154 |
+| nb02 | CatBoost (PyCaret) | 전체 재학습 단일 | CV 0.47090 | 0.42922 | 99위 | 0.39405 |
+| nb03b | blend (lgbm+cat+rf) | 5-fold 평균 | OOF 0.44132 | 0.43101 | 109위 | 0.39426 |
+| nb02b | CatBoost | 5-fold 평균 | OOF 0.44987 | 0.43226 | 114위 | 0.39939 |
+| exp01 | RandomForest | 5-fold 평균 | CV 0.46423 | 0.46180 | 371위 | 0.42650 |
 
-> 검증 체계가 서로 달라 **검증 점수 열끼리는 비교할 수 없다.**
+> 검증 점수는 체계가 서로 달라 **열끼리 비교할 수 없다.**
 
-### CV 1위가 LB 꼴찌였다
+### 1. CV 1위가 LB 꼴찌였다
 
-**CV에서 가장 좋았던 RF가 LB에서는 가장 나빴고, CV 꼴찌였던 XGB가 LB 1위였다.**
+CV에서 가장 좋았던 RF가 LB에서는 가장 나빴고, CV 꼴찌였던 XGB가 LB 1위였다.
 
 | | CV | Public LB | 갭 |
 |---|---|---|---|
-| RF | 0.46423 | 0.46180 | **−0.0024** |
+| RF | 0.46423 | 0.46180 | −0.0024 |
 | XGB | 0.47682 | 0.42016 | **−0.0567** |
 
-원인은 `baseline.py`의 구조에 있다. CV 점수는 **fold별 단일 모델**의 OOF인데,
-제출 예측은 **5개 fold 모델의 평균**이다 (`test_pred += ... / N_FOLD`).
-즉 제출본은 CV가 측정한 적 없는 5-모델 앙상블이다.
+CV 점수는 **fold별 단일 모델**의 OOF인데 제출 예측은 **5개 fold 모델의 평균**이다
+(`test_pred += ... / N_FOLD`). 즉 제출본은 CV가 측정한 적 없는 앙상블이다.
 
-- RF는 이미 500트리 앙상블이라 5개를 더 평균해도 이득이 작다 (fold 편차 ±0.015)
-- XGB는 fold별로 0.428~0.519로 흔들렸고(±0.029), **분산이 큰 모델일수록 평균의 이득이 크다**
+처음에 RF 한 점만 보고 "갭 −0.0024니 CV를 믿어도 된다"고 판단했는데 틀렸다.
+**갭은 대회의 속성이 아니라 모델마다 다르다.**
 
-처음에 RF 한 점만 보고 "갭이 −0.0024니 CV를 믿어도 된다"고 판단했는데 틀렸다.
-**갭은 대회의 속성이 아니라 모델마다 다르다.** 한 점으로 일반화하면 안 된다.
+### 2. fold 앙상블 가설 — 절반만 맞았다
 
-> **다음에 할 것**: CV 점수도 제출과 같은 형태(fold 평균 앙상블)로 재야 한다.
-> OOF 단일 모델 점수와 fold 평균 제출을 비교하면 모델 선택이 틀어진다.
+"nb01~03이 전체 재학습 단일 모델로 제출해서 진 것"이라는 가설을 세우고
+`notebooks/04_fold_ensemble.py`로 같은 모델을 5-fold 앙상블에 태워 제출했다.
 
-Private 1위가 0.37355인데 exp02가 0.37939다. 튜닝하지 않은 베이스라인치고 상위권에 근접했다.
+| 모델 | 단일 | fold 앙상블 | Private 변화 |
+|---|---|---|---|
+| xgb | 0.38552 | **0.37939** | −0.0061 개선 |
+| lgbm | 0.39154 | **0.38855** | −0.0030 개선 |
+| catboost | 0.39405 | 0.39939 | +0.0053 **악화** |
+| blend | 0.38639 | 0.39426 | +0.0079 **악화** |
+
+3개 중 2개가 나빠졌다. 단 **04는 통제 실험이 아니었다** —
+fold 앙상블만이 아니라 전처리(PyCaret `preprocess` 제거), fold 수(3→5),
+catboost 파라미터, blend 구성까지 동시에 바꿨다. 어느 변수 탓인지 가릴 수 없다.
+
+그래서 `xgb_single.py`로 **변수를 하나만 바꾼 대조 실험**을 했다.
+같은 XGB를 전체 데이터로 1회 학습해 제출:
+
+| | Public | Private |
+|---|---|---|
+| exp02 5-fold 평균 | 0.42016 | **0.37939** |
+| exp02b 단일 모델 | 0.43674 | 0.38552 |
+
+**같은 모델이면 fold 앙상블이 낫다**는 것은 확인됐다(Public −0.0166 / Private −0.0061).
+04에서 catboost·blend가 나빠진 건 앙상블 탓이 아니라 함께 바꾼 다른 변수 탓일 가능성이 크다.
+
+### 3. XGB의 우위는 앙상블이 아니라 모델 설정이었다
+
+XGB는 앙상블이든 단일이든 Private 1·2위를 독점했다(0.37939 / 0.38552).
+앙상블은 거기에 얹힌 추가 이득이지 우위의 원인이 아니다.
+
+원인으로 보이는 것은 강한 서브샘플링이다.
+
+```python
+subsample=0.8, colsample_bytree=0.5   # 1776개 중 절반만 보고 학습
+```
+
+EDA에서 확인했듯 이 데이터는 |r|>0.2인 피처가 12개뿐이고 약한 신호가 넓게 퍼져 있다.
+피처를 절반만 보게 강제하는 것이 이런 구조에 유리했던 것으로 보인다.
+
+### 4. Public과 Private이 다른 말을 한다
+
+exp02b는 Public 0.43674로 **131위**인데 Private 0.38552로 **2위**다.
+대회 진행 중이었다면 Public만 보고 버렸을 제출이다.
+
+Public은 test의 일부에 대한 한 번의 채점일 뿐이다. 이 대회는 종료돼서 Private이 바로 보이지만,
+진행 중인 대회라면 **Public LB가 아니라 자기 CV를 믿어야 한다**는 근거가 된다.
 
 ## EDA 요약 (`eda.ipynb`)
 
@@ -82,17 +126,21 @@ competitions/bioresponse/
   eda.ipynb / eda.py          EDA (polars 기반)
   EDA/*.png                   차트
   baseline.py                 RF / XGB  — python3 baseline.py --model rf|xgb
-  submission_rf.csv           exp01 (제출함)
-  submission_xgb.csv          exp02
+  xgb_single.py               대조 실험: 같은 XGB를 전체 재학습 단일 모델로
+  submission_rf.csv           exp01
+  submission_xgb.csv          exp02  ← Private 최고 0.37939
+  submission_xgb_single.csv   exp02b
   notebooks/
     01_lgbm.py                marimo — LGBM
     02_pycaret_base.py        marimo — PyCaret 모델 비교
     03_pycaret.py             marimo — feature_selection / 보정 / blend 비교
+    04_fold_ensemble.py       marimo — nb01~03을 동일한 5-fold 앙상블로 재실행
     .venv-pc4/                py3.11 + pycaret 4.0.0a8 (02·03 전용)
     out/*.html                실행 결과
   submission.csv                        nb01
   submissions/pycaret_submission.csv    nb02
   submissions/pycaret_03_submission.csv nb03
+  submissions/fold_ens_*.csv            nb01b / nb02b / nb03b
   eval/*.csv                  PyCaret 비교 결과
 ```
 
@@ -122,6 +170,6 @@ LogLoss 대회에서는 이 차이가 그대로 손실이 된다.
 
 - [ ] **CV를 제출과 같은 형태로 측정** — fold 평균 앙상블의 OOF를 따로 계산
       (지금 구조는 단일 모델로 재고 앙상블로 제출해서 모델 선택이 틀어진다)
-- [ ] XGB가 가장 좋았으니 거기서 하이퍼파라미터 튜닝 시작
-- [ ] nb01/nb03을 동일한 5-fold OOF에 태워 공정 비교
+- [ ] XGB의 `colsample_bytree`를 축으로 튜닝 — 서브샘플링이 효과의 원인으로 보인다
+- [ ] 04를 **통제 실험으로 다시** — 전처리/fold수/파라미터를 고정하고 앙상블 여부만 바꾸기
 - [ ] 상위권(Private 0.37355)과의 격차 — XGB가 0.37939까지 왔으니 튜닝 여지

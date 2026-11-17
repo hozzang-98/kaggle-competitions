@@ -64,7 +64,7 @@
   <div class="sub">
     Kaggle 2012년 대회 · 평가지표 <strong>LogLoss</strong> (낮을수록 좋음) ·
     피처 1,776개 전부 익명화<br>
-    작업 기간 2026-11-10 ~ 11-16 · 5개 제출 · 최선 <strong>Public 0.42016 / Private 0.37939</strong> (49위 / 702)
+    작업 기간 2026-11-10 ~ 11-18 · 9개 제출 · 최선 <strong>Public 0.42016 / Private 0.37939</strong> (49위 / 702)
   </div>
 </header>
 
@@ -81,7 +81,7 @@
   <div class="step"><span class="k">3</span><span>EDA — polars 기반 <code>eda.ipynb</code>, 1,776개를 집계 중심으로</span></div>
   <div class="step"><span class="k">4</span><span><strong>베이스라인 직접 작성</strong> — RandomForest / XGBoost, 5-fold OOF</span></div>
   <div class="step"><span class="k">5</span><span><strong>외부 marimo 노트북 3개</strong> 실행 — LGBM, PyCaret 모델 비교, PyCaret 옵션 비교</span></div>
-  <div class="step"><span class="k">6</span><span>5개 전부 제출 → <strong>CV 1위였던 RF가 LB 꼴찌</strong>, CV 꼴찌 XGB가 LB 1위</span></div>
+  <div class="step"><span class="k">6</span><span>9개 제출 → <strong>CV 1위였던 RF가 LB 꼴찌</strong>. fold 앙상블 가설을 대조 실험으로 검증</span></div>
 </div>
 
 <h2><span class="n">02</span>데이터와 제출 포맷</h2>
@@ -253,21 +253,19 @@ XGB는 fold1 0.428 ~ fold2 0.519로 흔들린다. XGB는 튜닝하지 않은 기
 <h2><span class="n">06</span>전체 결과와 제출</h2>
 
 <table>
-<tr><th>출처</th><th>모델</th><th>검증 체계</th><th class="num">검증 점수</th><th class="num">Public LB</th><th class="num">순위/702</th><th class="num">Private LB</th></tr>
-<tr><td>exp01</td><td>RandomForest</td><td>5-fold OOF</td><td class="num">0.46423</td><td class="num">0.46180</td><td class="num">371위</td><td class="num">0.42650</td></tr>
-<tr class="hl"><td>exp02</td><td>XGBoost</td><td>5-fold OOF</td><td class="num">0.47682</td><td class="num">0.42016</td><td class="num">49위</td><td class="num">0.37939</td></tr>
-<tr><td>nb01</td><td>LightGBM 고정 파라미터</td><td>holdout 20% 1회</td><td class="num">0.43591</td><td class="num">0.42492</td><td class="num">77위</td><td class="num">0.39154</td></tr>
-<tr><td>nb02</td><td>CatBoost</td><td>PyCaret 3-fold</td><td class="num">0.47090</td><td class="num">0.42922</td><td class="num">99위</td><td class="num">0.39405</td></tr>
-<tr><td>nb03</td><td>soft_blend</td><td>PyCaret 3-fold</td><td class="num">0.46130</td><td class="num">0.42327</td><td class="num">64위</td><td class="num">0.38639</td></tr>
+<tr><th>exp</th><th>모델</th><th>제출 예측 생성</th><th class="num">검증 점수</th><th class="num">Public</th><th class="num">순위</th><th class="num">Private</th></tr>
+<tr class="hl"><td>exp02</td><td>XGBoost</td><td>5-fold 평균</td><td class="num">CV 0.47682</td><td class="num">0.42016</td><td class="num">49위</td><td class="num">0.37939</td></tr>
+<tr><td>exp02b</td><td>XGBoost</td><td>전체 재학습 단일</td><td class="num">—</td><td class="num">0.43674</td><td class="num">131위</td><td class="num">0.38552</td></tr>
+<tr><td>nb03</td><td>soft_blend (PyCaret)</td><td>전체 재학습 단일</td><td class="num">CV 0.46130</td><td class="num">0.42327</td><td class="num">64위</td><td class="num">0.38639</td></tr>
+<tr><td>nb01b</td><td>LightGBM</td><td>5-fold 평균</td><td class="num">OOF 0.45632</td><td class="num">0.42408</td><td class="num">72위</td><td class="num">0.38855</td></tr>
+<tr><td>nb01</td><td>LightGBM</td><td>전체 재학습 단일</td><td class="num">holdout 0.43591</td><td class="num">0.42492</td><td class="num">77위</td><td class="num">0.39154</td></tr>
+<tr><td>nb02</td><td>CatBoost (PyCaret)</td><td>전체 재학습 단일</td><td class="num">CV 0.47090</td><td class="num">0.42922</td><td class="num">99위</td><td class="num">0.39405</td></tr>
+<tr><td>nb03b</td><td>blend (lgbm+cat+rf)</td><td>5-fold 평균</td><td class="num">OOF 0.44132</td><td class="num">0.43101</td><td class="num">109위</td><td class="num">0.39426</td></tr>
+<tr><td>nb02b</td><td>CatBoost</td><td>5-fold 평균</td><td class="num">OOF 0.44987</td><td class="num">0.43226</td><td class="num">114위</td><td class="num">0.39939</td></tr>
+<tr><td>exp01</td><td>RandomForest</td><td>5-fold 평균</td><td class="num">CV 0.46423</td><td class="num">0.46180</td><td class="num">371위</td><td class="num">0.42650</td></tr>
 </table>
 
-<div class="box warn">
-  <div class="t">이 표의 검증 점수들은 서로 비교할 수 없다</div>
-  01은 holdout 1회, 02·03은 PyCaret 기본 전처리를 거친 3-fold, 베이스라인은 5-fold OOF다.
-  <strong>검증 체계가 전부 다르다.</strong> nb01의 0.43591이 exp01의 0.46423보다 좋아 보이지만,
-  exp01의 fold별 최고값이 0.43663이었던 걸 보면 운 좋은 분할 하나를 본 것일 수 있다.
-  같은 자로 재려면 동일한 5-fold OOF에 태워야 한다.
-</div>
+<p class="dim">Private LB 기준 정렬. 검증 점수는 체계가 서로 달라 열끼리 비교할 수 없다.</p>
 
 <h3>가장 중요한 결과 — CV 1위가 LB 꼴찌였다</h3>
 
@@ -310,6 +308,67 @@ Private LB 1위가 0.37355인데 exp02가 <strong>0.37939</strong>다.
 종료 대회라 제출 즉시 Private 점수까지 보인다.
 </p>
 
+<h3>fold 앙상블 가설 — 절반만 맞았다</h3>
+
+<p>
+"nb01~03이 전체 재학습 단일 모델로 제출해서 진 것"이라는 가설을 세우고
+<code>04_fold_ensemble.py</code>로 같은 모델을 5-fold 앙상블에 태워 제출했다.
+</p>
+
+<table>
+<tr><th>모델</th><th class="num">단일</th><th class="num">fold 앙상블</th><th class="num">Private 변화</th></tr>
+<tr><td>xgb</td><td class="num">0.38552</td><td class="num">0.37939</td><td class="num ok">−0.0061 개선</td></tr>
+<tr><td>lgbm</td><td class="num">0.39154</td><td class="num">0.38855</td><td class="num ok">−0.0030 개선</td></tr>
+<tr><td>catboost</td><td class="num">0.39405</td><td class="num">0.39939</td><td class="num no">+0.0053 악화</td></tr>
+<tr><td>blend</td><td class="num">0.38639</td><td class="num">0.39426</td><td class="num no">+0.0079 악화</td></tr>
+</table>
+
+<div class="box warn">
+  <div class="t">04는 통제 실험이 아니었다</div>
+  fold 앙상블만이 아니라 <strong>전처리(PyCaret <code>preprocess</code> 제거),
+  fold 수(3→5), catboost 파라미터, blend 구성까지 동시에 바꿨다.</strong>
+  결과가 나빠져도 어느 변수 탓인지 가릴 수 없다. 변수를 하나만 바꿔야 비교가 된다.
+</div>
+
+<p>
+그래서 <code>xgb_single.py</code>로 <strong>변수를 하나만 바꾼 대조 실험</strong>을 했다.
+exp02와 완전히 같은 XGB를 전체 데이터로 1회 학습해 제출:
+</p>
+
+<table>
+<tr><th>exp02 XGB</th><th class="num">Public</th><th class="num">Private</th></tr>
+<tr class="hl"><td>5-fold 평균</td><td class="num">0.42016</td><td class="num">0.37939</td></tr>
+<tr><td>전체 재학습 단일</td><td class="num">0.43674</td><td class="num">0.38552</td></tr>
+</table>
+
+<p>
+<strong>같은 모델이면 fold 앙상블이 낫다</strong>는 것은 확인됐다
+(Public −0.0166 / Private −0.0061).
+04에서 catboost·blend가 나빠진 건 앙상블 탓이 아니라 함께 바꾼 다른 변수 탓일 가능성이 크다.
+</p>
+
+<h3>XGB의 우위는 앙상블이 아니라 모델 설정이었다</h3>
+
+<p>
+XGB는 앙상블이든 단일이든 Private 1·2위를 독점했다(0.37939 / 0.38552).
+앙상블은 거기에 얹힌 추가 이득이지 우위의 원인이 아니다. 원인으로 보이는 것은 강한 서브샘플링이다.
+</p>
+
+<pre><code>subsample=0.8, colsample_bytree=0.5   # 1776개 중 절반만 보고 학습</code></pre>
+
+<p>
+EDA에서 확인했듯 이 데이터는 |r|&gt;0.2인 피처가 12개뿐이고 약한 신호가 넓게 퍼져 있다.
+피처를 절반만 보게 강제하는 것이 이런 구조에 유리했던 것으로 보인다.
+</p>
+
+<div class="box warn">
+  <div class="t">Public과 Private이 다른 말을 한다</div>
+  exp02b는 Public 0.43674로 <strong>131위</strong>인데 Private 0.38552로 <strong>2위</strong>다.
+  대회 진행 중이었다면 Public만 보고 버렸을 제출이다.
+  Public은 test의 일부에 대한 한 번의 채점일 뿐이다 —
+  <strong>진행 중인 대회라면 Public LB가 아니라 자기 CV를 믿어야 한다.</strong>
+</div>
+
 <h2><span class="n">07</span>함정 기록</h2>
 
 <h3>polars로 wide CSV 읽기</h3>
@@ -351,6 +410,7 @@ pillow의 메타데이터 파일 하나가 깨져서 <strong>부스팅 모델 3�
   eda.ipynb / eda.py          EDA (polars)
   EDA/*.png                   차트 4장
   baseline.py                 RF / XGB  — --model rf|xgb
+  xgb_single.py               대조 실험 (전체 재학습 단일 모델)
   submission_rf.csv           exp01  ← 제출함 (Public 0.46180)
   submission_xgb.csv          exp02
   data/                       train / test / svm_benchmark
@@ -358,6 +418,7 @@ pillow의 메타데이터 파일 하나가 깨져서 <strong>부스팅 모델 3�
     01_lgbm.py                marimo — LGBM
     02_pycaret_base.py        marimo — PyCaret 7종 비교
     03_pycaret.py             marimo — 옵션 비교
+    04_fold_ensemble.py       marimo — nb01~03을 5-fold 앙상블로 재실행
     .venv-pc4/                py3.11 + pycaret 4.0.0a8 (02·03 전용)
     out/*.html                실행 결과 (코드 + 출력 포함)
   submission.csv                        nb01
