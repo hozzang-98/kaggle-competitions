@@ -62,6 +62,8 @@ Public은 test의 일부에 대한 한 번의 채점일 뿐이다.
 
 ## 5. 평가지표가 바뀌면 따라 바뀌는 것들
 
+> 지표 자체 정리는 [docs/평가지표.md](../../docs/평가지표.md) 로 따로 뺐다.
+
 Accuracy → LogLoss로 오면서 실제로 걸린 것들.
 
 - `predict`가 아니라 **`predict_proba`**, CV는 `scoring='neg_log_loss'`
