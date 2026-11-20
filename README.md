@@ -55,6 +55,8 @@ kaggle competitions submit -c <대회명> -f submissions/<파일>.csv -m "설명
 
 ## 참고 문서
 
+- [docs/평가지표.md](docs/평가지표.md) — LogLoss / AUC / RMSE 등. 지표가 바뀌면 뭘 바꿔야 하는지
+
 캐글 사용법 노트는 옵시디언 볼트에 있음 -> `~/Desktop/git/kaggle-competitions/docs/`
 
 - `Kaggle-제출-가이드.md` — 대회 유형, Code competition 제약, kernel-metadata 전체 설명
