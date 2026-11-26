@@ -1,0 +1,7 @@
+time,notebook,model,holdout_logloss
+2026-11-23 10:56:53,02_baseline.py,lgbm,0.4948
+2026-11-23 10:56:53,02_baseline.py,cb,0.50569
+2026-11-23 10:56:53,02_baseline.py,xgb,0.54886
+2026-11-23 10:56:53,02_baseline.py,rf,0.60505
+2026-11-24 16:27:33,07_autogluon_stack.py,ag:best_quality:nodystack:WeightedEnsemble_L3,0.42459
+2026-11-26 09:32:26,07_autogluon_stack.py,ag:best_quality:nodystack:WeightedEnsemble_L3,0.423
