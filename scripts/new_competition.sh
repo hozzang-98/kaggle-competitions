@@ -23,21 +23,24 @@ echo "== 대회 파일 목록 =="
 kaggle competitions files -c "$SLUG"
 
 cp -r "$ROOT/competitions/_template" "$DEST"
-sed -i '' "s/<대회명>/$SLUG/g; s/<slug>/$SLUG/g" "$DEST/README.md"
+sed -i '' "s/<대회명>/$SLUG/g; s/<slug>/$SLUG/g" "$DEST/README.md" "$DEST/ISSUE.md"
 
-kaggle competitions download -c "$SLUG" -p "$DEST/data"
-unzip -o "$DEST/data/*.zip" -d "$DEST/data"
+# 01_make_parquet 류 노트북이 data/raw/*.csv 를 기대한다
+mkdir -p "$DEST/data/raw"
+kaggle competitions download -c "$SLUG" -p "$DEST/data/raw"
+unzip -o "$DEST/data/raw/*.zip" -d "$DEST/data/raw"
+rm -f "$DEST/data/raw/$SLUG.zip"
 
 echo
 echo "== 받은 파일 =="
-ls -1 "$DEST/data"
+ls -1 "$DEST/data/raw"
 
 # 제출 포맷은 매번 걸리는 지점이라 자동으로 보여준다.
 # sample_submission.csv 가 없고 benchmark 류 파일이 그 역할인 대회도 있다.
 echo
 echo "== 제출 포맷 후보 =="
 FOUND=0
-for f in "$DEST"/data/*.csv; do
+for f in "$DEST"/data/raw/*.csv; do
   base="$(basename "$f")"
   case "$base" in
     *sample*|*submission*|*benchmark*)
