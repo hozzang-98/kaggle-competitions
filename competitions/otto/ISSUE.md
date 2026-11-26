@@ -1,6 +1,19 @@
-# AutoGluon on macOS (Apple Silicon) — fit 이후 모델 재로드 시 Segmentation fault
+# Otto — 막혔던 것들
 
-작성 2026-11-25. Kaggle Otto 대회(9클래스 다중분류) 작업 중 발생.
+작업 중 걸린 환경·도구 문제 기록. 2026-11-20 ~ 11-26.
+
+| # | 이슈 | 해결 |
+|---|---|---|
+| 1 | [AutoGluon segfault (macOS libomp 중복 로드)](#1-autogluon-segfault--macos-libomp-중복-로드) | `OMP_NUM_THREADS=1` |
+| 2 | [`autogluon.tabular` 만 설치하면 부스팅 백엔드가 없다](#2-autoguontabular-만-설치하면-부스팅-백엔드가-없다) | `[all]` extras |
+| 3 | [AutoGluon 1.6.3 × pandas 3.x 비호환](#3-autogluon-163--pandas-3x-비호환) | `pandas<3` |
+| 4 | [(사내) Fasoo DRM 이 패키지 메타데이터를 암호화](#4-사내-fasoo-drm-이-패키지-메타데이터를-암호화) | 정상 파일 직접 덮어쓰기 |
+
+**공통점 — 넷 다 exit code 가 0이다.** 로그를 열기 전에는 성공처럼 보인다.
+
+---
+
+# 1. AutoGluon segfault — macOS libomp 중복 로드
 
 ## 요약
 
@@ -121,44 +134,9 @@ CPU 0% 로 2시간 44분 멈춘 것이 이 증상으로 보인다.
 | Linux / Docker | 확실 | 환경 전환 |
 
 
-## 부수적으로 걸린 것 (참고)
+---
 
-**1. `autogluon.tabular` 만 설치하면 부스팅 백엔드가 없다**
-
-```
-lightgbm ✗  xgboost ✗  catboost ✗  torch ✗   (sklearn 만 OK)
-```
-
-그대로 돌리면 sklearn 모델만 학습하고 **정상 종료**한다.
-`autogluon.tabular[all]` 로 설치해야 한다.
-새 환경에서는 `fit()` 전에 백엔드 import 를 먼저 테스트할 것.
-
-**2. pandas 3.x 비호환**
-
-```
-TypeError: Cannot interpret '<StringDtype(na_value=nan)>' as a data type
-```
-
-AutoGluon 1.6.3 은 pandas 3.x 의 `StringDtype` 을 처리하지 못한다. `pandas<3` 필요.
-이때도 모델 0개 학습에 exit code 0 이다.
-
-**3. (사내 환경) Fasoo DRM 이 패키지 메타데이터를 암호화**
-
-uv 로 설치하면 `.txt` 메타데이터가 DRM 암호화되어 import 가 깨진다.
-
-```
-UnicodeDecodeError: 'utf-8' codec can't decode byte 0x9b in position 0
-파일 내용: "\x9b DRMONE  This Document is encrypted and protected by Fasoo DRM"
-```
-
-- 대상: `top_level.txt`, `entry_points.txt`, `VERSION.txt`
-- **증상이 원인과 무관해 보인다** — `import torch` 실패의 범인이 pandas 의
-  `entry_points.txt` 였다 (`importlib.metadata` 가 전체 dist 를 순회하다 만남)
-- **pip 로 설치하면 발생하지 않는다.** uv 의 아카이브 추출이 트리거
-- 경로 무관 (`/tmp`, `~/orca`, `~/Desktop` 모두 동일)
-- 복구: 정상 파일을 직접 덮어쓰기 (직접 쓴 `.txt` 는 암호화되지 않음)
-
-## 얻은 결과 (참고용)
+## 얻은 결과 (참고용 — 크래시 전까지는 리더보드가 나온다)
 
 크래시 전까지 리더보드는 정상적으로 나온다. 600초, 8-fold bagging, 2층 스태킹:
 
@@ -179,16 +157,78 @@ UnicodeDecodeError: 'utf-8' codec can't decode byte 0x9b in position 0
 같은 알고리즘이 L1 → L2 에서 크게 개선된다(LightGBMXT −0.058, CatBoost −0.098).
 스태킹이 실제로 작동하고 있다는 뜻이고, 그래서 **예측을 못 만드는 것이 더 아깝다.**
 
-## 시도 7 — `predictor.persist()` + 같은 셀 즉시 예측
+## 시도 7 · 8 — 재로드 회피와 해결
 
-재로드를 피하려 했으나 **`persist()` 자체가 모델을 로드**하므로 동일하게 segfault.
-`FIT_DONE` 은 찍히고 `PERSIST_DONE` 전에 사망.
+**시도 7** `predictor.persist()` 로 메모리 상주 후 같은 셀에서 즉시 예측 →
+`persist()` 자체가 모델을 로드하므로 **동일하게 segfault**. `FIT_DONE` 은 찍히고
+`PERSIST_DONE` 전에 사망.
 
-## 시도 8 — `OMP_NUM_THREADS=1` (진행 중)
+**시도 8** `OMP_NUM_THREADS=1` → **해결.**
 
-libomp 충돌이 원인으로 확인되어 적용. 결과는 추후 기록.
+```bash
+OMP_NUM_THREADS=1 AG_TIME_LIMIT=900 AG_REFIT_FULL=0 MPLBACKEND=Agg \
+  ../.venv-ag/bin/marimo export html 07_autogluon_stack.py -o out/07_autogluon_stack.html
+```
 
-## 교훈
+```
+FIT_DONE / PERSIST_DONE / PREDICT_DONE (144368, 9) / FITTED=21
+SUBMISSION_WRITTEN rows=144368
+segfault: 0
+```
+
+대가가 있다 — 단일 스레드라 느려진다.
+
+| | 600초 (멀티스레드, 크래시) | 900초 (단일스레드, 성공) |
+|---|---|---|
+| 최고 val | 0.41685 | 0.42300 |
+| bag folds | 8 | 5 |
+
+시간을 1.5배 줬는데 점수는 0.006 나빠졌다. 크래시를 피한 비용이다.
+
+제출 결과는 **Public 0.41182 / Private 0.41415 (68위 / 3,509, 상위 1.9%)**.
+
+# 2. `autogluon.tabular` 만 설치하면 부스팅 백엔드가 없다
+
+```
+lightgbm ✗  xgboost ✗  catboost ✗  torch ✗   (sklearn 만 OK)
+```
+
+그대로 돌리면 sklearn 모델만 학습하고 **정상 종료**한다.
+`autogluon.tabular[all]` 로 설치해야 한다.
+새 환경에서는 `fit()` 전에 백엔드 import 를 먼저 테스트할 것.
+
+---
+
+# 3. AutoGluon 1.6.3 × pandas 3.x 비호환
+
+```
+TypeError: Cannot interpret '<StringDtype(na_value=nan)>' as a data type
+```
+
+AutoGluon 1.6.3 은 pandas 3.x 의 `StringDtype` 을 처리하지 못한다. `pandas<3` 필요.
+이때도 모델 0개 학습에 exit code 0 이다.
+
+---
+
+# 4. (사내) Fasoo DRM 이 패키지 메타데이터를 암호화
+
+uv 로 설치하면 `.txt` 메타데이터가 DRM 암호화되어 import 가 깨진다.
+
+```
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0x9b in position 0
+파일 내용: "\x9b DRMONE  This Document is encrypted and protected by Fasoo DRM"
+```
+
+- 대상: `top_level.txt`, `entry_points.txt`, `VERSION.txt`
+- **증상이 원인과 무관해 보인다** — `import torch` 실패의 범인이 pandas 의
+  `entry_points.txt` 였다 (`importlib.metadata` 가 전체 dist 를 순회하다 만남)
+- **pip 로 설치하면 발생하지 않는다.** uv 의 아카이브 추출이 트리거
+- 경로 무관 (`/tmp`, `~/orca`, `~/Desktop` 모두 동일)
+- 복구: 정상 파일을 직접 덮어쓰기 (직접 쓴 `.txt` 는 암호화되지 않음)
+
+---
+
+# 교훈
 
 - **exit code 0 을 믿으면 안 된다.** 이번 작업에서 조용한 실패가 3종류 나왔다
   (백엔드 미설치 / pandas 비호환 / segfault). 전부 셸은 성공으로 보고했다

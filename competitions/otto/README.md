@@ -353,7 +353,7 @@ OMP_NUM_THREADS=1 AG_TIME_LIMIT=900 AG_REFIT_FULL=0 MPLBACKEND=Agg \
 > `KMP_DUPLICATE_LIB_OK=TRUE` 는 **쓰면 안 된다** ([pytorch#193520](https://github.com/pytorch/pytorch/issues/193520)).
 > 데드락·행을 유발한다. 실제로 별도 프로세스 predict 가 CPU 0% 로 2시간 44분 멈췄다.
 
-전체 기록은 [`AUTOGLUON-ISSUE.md`](./AUTOGLUON-ISSUE.md).
+전체 기록은 [`ISSUE.md`](./ISSUE.md).
 
 #### 받은 코드는 수정하지 않았다
 
